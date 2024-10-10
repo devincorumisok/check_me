@@ -1,0 +1,77 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check me</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-color: #ffebee; /* Light pink background */
+        }
+        #checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(100, 1fr); /* 100 columns */
+            gap: 10px; /* Space between checkboxes */
+            max-height: 80vh; /* Limit the height */
+            overflow-y: auto; /* Scroll if necessary */
+            padding: 10px;
+        }
+        .checkbox {
+            width: 20px; /* Width of each checkbox */
+            height: 20px; /* Height of each checkbox */
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Check me!</h1>
+    <div id="checkbox-container"></div>
+
+    <script>
+        const container = document.getElementById('checkbox-container');
+        const socket = io(); // Connect to the Socket.IO server
+
+        // Create 5000 checkboxes
+        for (let i = 0; i < 5000; i++) {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'checkbox'; // Add a class for styling
+            checkbox.id = `checkbox-${i}`; // Assign an ID
+
+            // Check localStorage for saved state
+            const savedState = localStorage.getItem(checkbox.id);
+            checkbox.checked = savedState === 'true'; // Set checkbox state from localStorage
+
+            container.appendChild(checkbox);
+
+            // Listen for changes on each checkbox
+            checkbox.addEventListener('change', () => {
+                const checked = checkbox.checked;
+                // Emit the checkbox update to the server
+                socket.emit('checkboxUpdate', { id: checkbox.id, checked });
+                // Save state to localStorage
+                localStorage.setItem(checkbox.id, checked);
+            });
+        }
+
+        // Listen for checkbox updates from the server
+        socket.on('updateCheckbox', (data) => {
+            const checkbox = document.getElementById(data.id);
+            if (checkbox) {
+                checkbox.checked = data.checked; // Update the checkbox state
+                // Save the updated state to localStorage
+                localStorage.setItem(data.id, data.checked);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!-- public/reset.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Checkboxes</title>
+</head>
+<body>
+    <h1>Reset Checkboxes</h1>
+    <form id="reset-form">
+        <label for="password">Enter Password:</label>
+        <input type="password" id="password" required>
+        <button type="submit">Reset</button>
+    </form>
+    <p id="message"></p>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const resetForm = document.getElementById('reset-form');
+        const message = document.getElementById('message');
+        const socket = io(); // Connect to the Socket.IO server
+
+        resetForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+
+            // Check the password (you may want to do this more securely)
+            if (password === '711812') { // Use the same password as in server.js
+                socket.emit('resetCheckboxes'); // Emit reset event to the server
+                message.textContent = 'All checkboxes have been reset!';
+            } else {
+                message.textContent = 'Incorrect password. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>
